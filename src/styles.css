@@ -132,6 +132,33 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+:root {
+  --background: oklch(0.2 0.05 265);
+  --foreground: oklch(0.96 0.02 85);
+  --card: oklch(0.26 0.06 265);
+  --card-foreground: oklch(0.96 0.02 85);
+  --primary: oklch(0.7 0.19 25);
+  --primary-foreground: oklch(0.18 0.04 265);
+  --secondary: oklch(0.32 0.06 265);
+  --secondary-foreground: oklch(0.96 0.02 85);
+  --muted: oklch(0.3 0.05 265);
+  --muted-foreground: oklch(0.72 0.04 260);
+  --accent: oklch(0.88 0.2 128);
+  --accent-foreground: oklch(0.18 0.04 265);
+  --border: oklch(1 0 0 / 12%);
+  --tile: oklch(0.93 0.04 85);
+  --tile-foreground: oklch(0.22 0.05 265);
+  --font-display: "Bebas Neue", sans-serif;
+  --font-body: "Space Grotesk", sans-serif;
+}
+
+@theme inline {
+  --color-tile: var(--tile);
+  --color-tile-foreground: var(--tile-foreground);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -140,5 +167,14 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-body);
+    background-image: radial-gradient(circle at 20% 0%, oklch(0.3 0.08 265) 0%, transparent 50%);
+    min-height: 100vh;
   }
 }
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop { animation: pop 0.2s ease-out; }
