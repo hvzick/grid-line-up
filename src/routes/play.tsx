@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  botPick,
+  botPickFor,
+  type Difficulty,
   completedLines,
   emptyGrid,
   fillRandom,
@@ -35,6 +36,7 @@ function PlayPage() {
   const [called, setCalled] = useState<number[]>([]);
   const [turn, setTurn] = useState<Turn>("p1");
   const [timeLeft, setTimeLeft] = useState(SETUP_TIME);
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [winner, setWinner] = useState<Turn | null>(null);
 
   const calledSet = useMemo(() => new Set(called), [called]);
@@ -94,7 +96,7 @@ function PlayPage() {
   // bot turn
   useEffect(() => {
     if (phase !== "playing" || turn !== "p2") return;
-    const id = setTimeout(() => call(botPick(botGrid, calledSet)), 900 + Math.random() * 600);
+    const id = setTimeout(() => call(botPickFor(difficulty, botGrid, calledSet)), 900 + Math.random() * 600);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, turn, called.length]);
@@ -146,6 +148,21 @@ function PlayPage() {
 
       {phase === "setup" && (
         <section className="mt-6 flex flex-col items-center gap-6">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase text-muted-foreground">Bot difficulty</span>
+            {(["easy", "medium", "hard"] as Difficulty[]).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDifficulty(d)}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm font-semibold capitalize transition",
+                  d === difficulty ? "bg-accent text-accent-foreground" : "bg-secondary text-secondary-foreground",
+                )}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
           <BoardView
             grid={myGrid}
             onCell={onSetupCell}
@@ -209,7 +226,7 @@ function PlayPage() {
               />
             </div>
             <div className="flex flex-col items-center gap-3">
-              <PlayerLabel name="Bot" lines={botLines.length} active={turn === "p2" && phase === "playing"} />
+              <PlayerLabel name="Bot" badge={difficulty} lines={botLines.length} active={turn === "p2" && phase === "playing"} />
               {phase === "finished" ? (
                 <BoardView grid={botGrid} called={calledSet} lines={botLines} />
               ) : (
@@ -241,11 +258,17 @@ function PlayPage() {
   );
 }
 
-function PlayerLabel({ name, lines, active }: { name: string; lines: number; active: boolean }) {
+function PlayerLabel({ name, lines, active, badge }: { name: string; lines: number; active: boolean; badge?: string }) {
   return (
     <div className="flex w-full max-w-sm items-center justify-between">
       <span className={cn("font-display text-2xl tracking-wide", active && "text-accent")}>
-        {name} {active && "●"}
+        {name}{" "}
+        {badge && (
+          <span className="ml-1 rounded bg-secondary px-2 py-0.5 align-middle font-sans text-xs font-semibold uppercase text-secondary-foreground">
+            {badge}
+          </span>
+        )}{" "}
+        {active && "●"}
       </span>
       <span className="flex gap-1">
         {"BINGO".split("").map((l, i) => (

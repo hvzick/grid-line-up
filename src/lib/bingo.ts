@@ -57,3 +57,34 @@ export function randomUncalled(called: Set<number>): number {
   const opts = Array.from({ length: 25 }, (_, i) => i + 1).filter((n) => !called.has(n));
   return opts[Math.floor(Math.random() * opts.length)]!;
 }
+
+export type Difficulty = "easy" | "medium" | "hard";
+
+function hardPick(grid: number[], called: Set<number>): number {
+  const options = shuffle(grid.filter((n) => !called.has(n)));
+  let best = options[0]!;
+  let bestScore = -Infinity;
+  for (const n of options) {
+    const idx = grid.indexOf(n);
+    let score = 0;
+    let linesTouched = 0;
+    for (const line of LINES) {
+      if (!line.includes(idx)) continue;
+      linesTouched++;
+      const marked = line.filter((i) => called.has(grid[i]!)).length;
+      score += marked === 4 ? 1000 : marked * marked * 3 + 1;
+    }
+    score += linesTouched * 2; // favor intersections (diagonals, center)
+    if (score > bestScore) {
+      bestScore = score;
+      best = n;
+    }
+  }
+  return best;
+}
+
+export function botPickFor(difficulty: Difficulty, grid: number[], called: Set<number>): number {
+  if (difficulty === "easy") return randomUncalled(called);
+  if (difficulty === "medium") return Math.random() < 0.5 ? randomUncalled(called) : botPick(grid, called);
+  return hardPick(grid, called);
+}
