@@ -14,7 +14,7 @@ export function shuffle<T>(a: T[]): T[] {
   const arr = [...a];
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
   }
   return arr;
 }
@@ -30,7 +30,7 @@ export function fillRandom(grid: Grid): number[] {
 }
 
 export function completedLines(grid: number[], called: Set<number>): number[][] {
-  return LINES.filter((line) => line.every((i) => called.has(grid[i])));
+  return LINES.filter((line) => line.every((i) => called.has(grid[i]!)));
 }
 
 export function botPick(grid: number[], called: Set<number>): number {
@@ -42,7 +42,7 @@ export function botPick(grid: number[], called: Set<number>): number {
     let score = 0;
     for (const line of LINES) {
       if (!line.includes(idx)) continue;
-      const marked = line.filter((i) => called.has(grid[i])).length;
+      const marked = line.filter((i) => called.has(grid[i]!)).length;
       score += marked === 4 ? 100 : marked * marked + 1;
     }
     if (score > bestScore) {
@@ -50,10 +50,10 @@ export function botPick(grid: number[], called: Set<number>): number {
       best = n;
     }
   }
-  return best;
+  return best!;
 }
 
 export function randomUncalled(called: Set<number>): number {
   const opts = Array.from({ length: 25 }, (_, i) => i + 1).filter((n) => !called.has(n));
-  return opts[Math.floor(Math.random() * opts.length)];
+  return opts[Math.floor(Math.random() * opts.length)]!;
 }
