@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { OnlineLobby } from "@/components/OnlineLobby";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,12 +25,7 @@ function Index() {
         >
           Play vs Bot
         </Link>
-        <button
-          disabled
-          className="cursor-not-allowed rounded-xl border border-border bg-secondary px-6 py-4 font-display text-3xl tracking-wide text-muted-foreground"
-        >
-          vs Friend <span className="block text-sm font-sans">Coming soon</span>
-        </button>
+        <OnlineLobby />
       </div>
       <section className="mt-12 rounded-xl bg-card p-6 text-left text-sm leading-relaxed">
         <h2 className="font-display text-2xl tracking-wide text-accent">How to play</h2>
