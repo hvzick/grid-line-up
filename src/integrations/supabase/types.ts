@@ -14,13 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      match_players: {
+        Row: {
+          grid: number[] | null
+          match_id: string
+          player_token: string
+          slot: string
+        }
+        Insert: {
+          grid?: number[] | null
+          match_id: string
+          player_token: string
+          slot: string
+        }
+        Update: {
+          grid?: number[] | null
+          match_id?: string
+          player_token?: string
+          slot?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_players_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          called_numbers: number[]
+          created_at: string
+          current_turn: string | null
+          id: string
+          is_public: boolean
+          p1_ready: boolean
+          p2_ready: boolean
+          rematch_code: string | null
+          room_code: string
+          setup_deadline: string | null
+          status: string
+          turn_deadline: string | null
+          version: number
+          winner: string | null
+        }
+        Insert: {
+          called_numbers?: number[]
+          created_at?: string
+          current_turn?: string | null
+          id?: string
+          is_public?: boolean
+          p1_ready?: boolean
+          p2_ready?: boolean
+          rematch_code?: string | null
+          room_code: string
+          setup_deadline?: string | null
+          status?: string
+          turn_deadline?: string | null
+          version?: number
+          winner?: string | null
+        }
+        Update: {
+          called_numbers?: number[]
+          created_at?: string
+          current_turn?: string | null
+          id?: string
+          is_public?: boolean
+          p1_ready?: boolean
+          p2_ready?: boolean
+          rematch_code?: string | null
+          room_code?: string
+          setup_deadline?: string | null
+          status?: string
+          turn_deadline?: string | null
+          version?: number
+          winner?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      find_or_create_match: {
+        Args: { _code: string; _token: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
