@@ -10,17 +10,30 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PlayRouteImport } from './routes/play'
+import { Route as BingoRouteImport } from './routes/bingo'
+import { Route as MovieRouteImport } from './routes/movie'
+import { Route as MoviePlayRouteImport } from './routes/movie-play'
 import { Route as OnlineRouteImport } from './routes/online'
+import { Route as PlayRouteImport } from './routes/play'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlayRoute = PlayRouteImport.update({
-  id: '/play',
-  path: '/play',
+const BingoRoute = BingoRouteImport.update({
+  id: '/bingo',
+  path: '/bingo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovieRoute = MovieRouteImport.update({
+  id: '/movie',
+  path: '/movie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviePlayRoute = MoviePlayRouteImport.update({
+  id: '/movie-play',
+  path: '/movie-play',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnlineRoute = OnlineRouteImport.update({
@@ -28,35 +41,53 @@ const OnlineRoute = OnlineRouteImport.update({
   path: '/online',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlayRoute = PlayRouteImport.update({
+  id: '/play',
+  path: '/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/play': typeof PlayRoute
+  '/bingo': typeof BingoRoute
+  '/movie': typeof MovieRoute
+  '/movie-play': typeof MoviePlayRoute
   '/online': typeof OnlineRoute
+  '/play': typeof PlayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/play': typeof PlayRoute
+  '/bingo': typeof BingoRoute
+  '/movie': typeof MovieRoute
+  '/movie-play': typeof MoviePlayRoute
   '/online': typeof OnlineRoute
+  '/play': typeof PlayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/play': typeof PlayRoute
+  '/bingo': typeof BingoRoute
+  '/movie': typeof MovieRoute
+  '/movie-play': typeof MoviePlayRoute
   '/online': typeof OnlineRoute
+  '/play': typeof PlayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/play' | '/online'
+  fullPaths: '/' | '/bingo' | '/movie' | '/movie-play' | '/online' | '/play'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/play' | '/online'
-  id: '__root__' | '/' | '/play' | '/online'
+  to: '/' | '/bingo' | '/movie' | '/movie-play' | '/online' | '/play'
+  id:
+    '__root__' | '/' | '/bingo' | '/movie' | '/movie-play' | '/online' | '/play'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PlayRoute: typeof PlayRoute
+  BingoRoute: typeof BingoRoute
+  MovieRoute: typeof MovieRoute
+  MoviePlayRoute: typeof MoviePlayRoute
   OnlineRoute: typeof OnlineRoute
+  PlayRoute: typeof PlayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,11 +99,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/play': {
-      id: '/play'
-      path: '/play'
-      fullPath: '/play'
-      preLoaderRoute: typeof PlayRouteImport
+    '/bingo': {
+      id: '/bingo'
+      path: '/bingo'
+      fullPath: '/bingo'
+      preLoaderRoute: typeof BingoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movie': {
+      id: '/movie'
+      path: '/movie'
+      fullPath: '/movie'
+      preLoaderRoute: typeof MovieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movie-play': {
+      id: '/movie-play'
+      path: '/movie-play'
+      fullPath: '/movie-play'
+      preLoaderRoute: typeof MoviePlayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/online': {
@@ -82,13 +127,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnlineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/play': {
+      id: '/play'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof PlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PlayRoute: PlayRoute,
+  BingoRoute: BingoRoute,
+  MovieRoute: MovieRoute,
+  MoviePlayRoute: MoviePlayRoute,
   OnlineRoute: OnlineRoute,
+  PlayRoute: PlayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

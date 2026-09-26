@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   botPickFor,
@@ -125,19 +126,34 @@ function PlayPage() {
   const secs = String(Math.max(timeLeft, 0) % 60).padStart(2, "0");
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
-      <header className="flex items-center justify-between">
-        <Link to="/" className="font-display text-3xl tracking-wide text-primary">
+    <main
+      className={cn(
+        "mx-auto px-4",
+        phase === "setup"
+          ? "flex min-h-dvh flex-col py-3 lg:h-dvh lg:min-h-0 lg:max-w-6xl lg:overflow-hidden lg:px-6"
+          : "max-w-5xl py-8",
+      )}
+    >
+      <header className="relative flex items-center justify-center">
+        <Link
+          to="/bingo"
+          className="absolute left-0 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-semibold text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Link>
+        <Link to="/" className={cn("font-display tracking-wide text-primary", phase === "setup" ? "text-2xl" : "text-3xl")}>
           BINGO DUEL
         </Link>
         {phase !== "finished" && (
-          <div className="text-right">
+          <div className="absolute right-0 text-right">
             <div className="text-xs uppercase text-muted-foreground">
               {phase === "setup" ? "Fill your grid" : turn === "p1" ? "Your turn" : "Bot is thinking…"}
             </div>
             <div
               className={cn(
-                "font-display text-4xl tabular-nums",
+                "font-display tabular-nums",
+                phase === "setup" ? "text-3xl" : "text-4xl",
                 timeLeft <= 5 && phase === "playing" ? "text-primary" : "text-foreground",
               )}
             >
@@ -148,54 +164,65 @@ function PlayPage() {
       </header>
 
       {phase === "setup" && (
-        <section className="mt-6 flex flex-col items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="text-xs uppercase text-muted-foreground">Bot difficulty</span>
-            {(["easy", "medium", "hard"] as Difficulty[]).map((d) => (
-              <button
-                key={d}
-                onClick={() => setDifficulty(d)}
-                className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-semibold capitalize transition",
-                  d === difficulty ? "bg-accent text-accent-foreground" : "bg-secondary text-secondary-foreground",
-                )}
-              >
-                {d}
-              </button>
-            ))}
+        <section className="grid flex-1 content-center gap-5 py-3 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)] lg:items-center lg:gap-10 lg:py-2">
+          <div className="flex justify-center lg:min-h-0">
+            <BoardView grid={myGrid} onCell={onSetupCell} called={calledSet} lines={[]} />
           </div>
-          <BoardView
-            grid={myGrid}
-            onCell={onSetupCell}
-            called={calledSet}
-            lines={[]}
-          />
-          <div className="flex max-w-md flex-wrap justify-center gap-1.5">
-            {Array.from({ length: 25 }, (_, i) => i + 1).map((n) => (
-              <button
-                key={n}
-                disabled={usedNums.has(n)}
-                onClick={() => setSelectedNum(n === selectedNum ? null : n)}
-                className={cn(
-                  "h-9 w-9 rounded-md text-sm font-bold transition",
-                  usedNums.has(n)
-                    ? "bg-muted text-muted-foreground/40"
-                    : n === selectedNum
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/70",
-                )}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Pick a number (or none for the next one) then tap a cell. Tap a filled cell to clear it.
-          </p>
-          <div className="flex gap-3">
-            <Btn onClick={() => setMyGrid(fillRandom(myGrid))} variant="secondary">Random fill</Btn>
-            <Btn onClick={() => setMyGrid(emptyGrid())} variant="secondary">Clear</Btn>
-            <Btn onClick={() => startGame(myGrid)} disabled={!myFull}>Ready</Btn>
+
+          <div className="mx-auto flex w-full max-w-md flex-col gap-4 lg:mx-0 lg:justify-center">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Bot difficulty</span>
+              <div className="mt-2 flex gap-2">
+                {(["easy", "medium", "hard"] as Difficulty[]).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDifficulty(d)}
+                    className={cn(
+                      "rounded-md px-3 py-1.5 text-sm font-semibold capitalize transition",
+                      d === difficulty ? "bg-accent text-accent-foreground" : "bg-secondary text-secondary-foreground",
+                    )}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Choose a number</span>
+                {selectedNum !== null && <span className="text-xs font-semibold text-accent">Selected: {selectedNum}</span>}
+              </div>
+              <div className="mt-2 grid grid-cols-5 gap-1.5">
+                {Array.from({ length: 25 }, (_, i) => i + 1).map((n) => (
+                  <button
+                    key={n}
+                    disabled={usedNums.has(n)}
+                    onClick={() => setSelectedNum(n === selectedNum ? null : n)}
+                    className={cn(
+                      "h-9 w-full rounded-md text-sm font-bold transition",
+                      usedNums.has(n)
+                        ? "bg-muted text-muted-foreground/40"
+                        : n === selectedNum
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/70",
+                    )}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Pick a number, then tap a cell. With no number selected, the next available number is placed. Tap a filled cell to clear it.
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              <Btn onClick={() => setMyGrid(fillRandom(myGrid))} variant="secondary">Random fill</Btn>
+              <Btn onClick={() => setMyGrid(emptyGrid())} variant="secondary">Clear</Btn>
+              <Btn onClick={() => startGame(myGrid)} disabled={!myFull}>Ready</Btn>
+            </div>
           </div>
         </section>
       )}

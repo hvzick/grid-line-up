@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createRoom, joinRoom, quickMatch } from "@/lib/online.functions";
@@ -34,8 +35,8 @@ export function OnlineLobby() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="rounded-xl bg-accent px-6 py-4 font-display text-3xl tracking-wide text-accent-foreground transition hover:scale-[1.02]">
-          Play Online (1v1)
+        <button className="inline-flex min-h-14 w-full items-center justify-between rounded-xl bg-accent px-5 py-3 font-display text-2xl tracking-wide text-accent-foreground transition hover:-translate-y-0.5 hover:brightness-110">
+          Online 1v1 <ArrowUpRight className="h-5 w-5" />
         </button>
       </DialogTrigger>
       <DialogContent>

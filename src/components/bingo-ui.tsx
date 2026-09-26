@@ -75,11 +75,13 @@ export function Btn({
   onClick,
   disabled,
   variant = "primary",
+  className,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary";
+  className?: string;
 }) {
   return (
     <button
@@ -88,6 +90,7 @@ export function Btn({
       className={cn(
         "rounded-lg px-5 py-2.5 font-semibold transition disabled:opacity-40",
         variant === "primary" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground",
+        className,
       )}
     >
       {children}
