@@ -58,6 +58,7 @@ function OnlinePage() {
   const [copied, setCopied] = useState(false);
   const now = useNow();
   const token = useRef("");
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const draftRef = useRef(draft);
   draftRef.current = draft;
 
