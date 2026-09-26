@@ -368,7 +368,7 @@ function OnlinePage() {
             grid={myGrid}
             called={calledSet}
             lines={myLines}
-            onCell={(i) => myTurn && callFn({ data: { token: token.current, code, n: myGrid[i]! } })}
+            onCell={(i) => myTurn && play(myGrid[i]!)}
             interactive={myTurn}
           />
         </div>
