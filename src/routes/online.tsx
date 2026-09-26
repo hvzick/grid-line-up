@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { BoardView, Btn, PlayerLabel } from "@/components/bingo-ui";
 import { completedLines, emptyGrid, fillRandom, type Grid } from "@/lib/bingo";
@@ -15,7 +16,8 @@ import {
 import { getPlayerToken } from "@/lib/player-token";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/online/$code")({
+export const Route = createFileRoute("/online")({
+  validateSearch: z.object({ room: z.string().optional() }),
   ssr: false,
   head: () => ({
     meta: [
@@ -42,7 +44,7 @@ function useNow() {
 }
 
 function OnlinePage() {
-  const { code } = Route.useParams();
+  const { room: code } = Route.useSearch();
   const navigate = useNavigate();
   const getFn = useServerFn(getMatchState);
   const joinFn = useServerFn(joinRoom);
@@ -63,6 +65,10 @@ function OnlinePage() {
   draftRef.current = draft;
 
   const refresh = useCallback(async () => {
+    if (!code) {
+      setError("Room code is required");
+      return;
+    }
     const r = await getFn({ data: { token: token.current, code } });
     if (r.state) {
       setState(r.state);
@@ -214,7 +220,7 @@ function OnlinePage() {
   };
 
   if (state.status === "waiting") {
-    const link = `${window.location.origin}/online/${state.code}`;
+    const link = `${window.location.origin}/online?room=${state.code}`;
     return (
       <Shell>
         <section className="mt-16 flex flex-col items-center gap-6 text-center">
@@ -349,7 +355,7 @@ function OnlinePage() {
             <Btn
               onClick={async () => {
                 const r = await rematchFn({ data: { token: token.current, code } });
-                navigate({ to: "/online/$code", params: { code: r.code } });
+                navigate({ to: "/online", search: { room: r.code } });
               }}
             >
               {state.rematchCode ? "Accept rematch" : "Rematch"}

@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayRouteImport } from './routes/play'
-import { Route as OnlineCodeRouteImport } from './routes/online.$code'
+import { Route as OnlineRouteImport } from './routes/online'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,40 +23,40 @@ const PlayRoute = PlayRouteImport.update({
   path: '/play',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnlineCodeRoute = OnlineCodeRouteImport.update({
-  id: '/online/$code',
-  path: '/online/$code',
+const OnlineRoute = OnlineRouteImport.update({
+  id: '/online',
+  path: '/online',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/play': typeof PlayRoute
-  '/online/$code': typeof OnlineCodeRoute
+  '/online': typeof OnlineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/play': typeof PlayRoute
-  '/online/$code': typeof OnlineCodeRoute
+  '/online': typeof OnlineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/play': typeof PlayRoute
-  '/online/$code': typeof OnlineCodeRoute
+  '/online': typeof OnlineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/play' | '/online/$code'
+  fullPaths: '/' | '/play' | '/online'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/play' | '/online/$code'
-  id: '__root__' | '/' | '/play' | '/online/$code'
+  to: '/' | '/play' | '/online'
+  id: '__root__' | '/' | '/play' | '/online'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PlayRoute: typeof PlayRoute
-  OnlineCodeRoute: typeof OnlineCodeRoute
+  OnlineRoute: typeof OnlineRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,11 +75,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/online/$code': {
-      id: '/online/$code'
-      path: '/online/$code'
-      fullPath: '/online/$code'
-      preLoaderRoute: typeof OnlineCodeRouteImport
+    '/online': {
+      id: '/online'
+      path: '/online'
+      fullPath: '/online'
+      preLoaderRoute: typeof OnlineRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -88,7 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PlayRoute: PlayRoute,
-  OnlineCodeRoute: OnlineCodeRoute,
+  OnlineRoute: OnlineRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

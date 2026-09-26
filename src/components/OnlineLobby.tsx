@@ -14,7 +14,7 @@ export function OnlineLobby() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const go = (c: string) => navigate({ to: "/online/$code", params: { code: c } });
+  const go = (c: string) => navigate({ to: "/online", search: { room: c } });
 
   const run = async (fn: () => Promise<string | null>) => {
     setBusy(true);
