@@ -82,12 +82,55 @@ function OnlinePage() {
     setDraft(emptyGrid());
     refresh();
     const channel = supabase
-      .channel(`match-${code}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "matches", filter: `room_code=eq.${code}` }, () => {
-        refresh();
+      .channel(`match-${code}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "number_called" }, ({ payload }) => {
+        const n = Number((payload as { n?: number })?.n);
+        const from = (payload as { slot?: string })?.slot;
+        if (!Number.isInteger(n)) return;
+        setState((prev) => {
+          if (!prev || prev.status !== "playing" || prev.called.includes(n)) return prev;
+          return {
+            ...prev,
+            called: [...prev.called, n],
+            currentTurn: from === "p1" ? "p2" : "p1",
+            turnDeadline: new Date(Date.now() + 15_000).toISOString(),
+          };
+        });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "matches", filter: `room_code=eq.${code}` }, (payload) => {
+        const row = payload.new as Record<string, unknown> | null;
+        if (!row || !row["status"]) {
+          refresh();
+          return;
+        }
+        let needsRefresh = false;
+        setState((prev) => {
+          if (!prev) {
+            needsRefresh = true;
+            return prev;
+          }
+          const status = row["status"] as State["status"];
+          const ready = prev.mySlot === "p1" ? row["p2_ready"] : row["p1_ready"];
+          // grids / slots live in another table: only fetch when the phase changes
+          if (status !== prev.status) needsRefresh = true;
+          return {
+            ...prev,
+            status,
+            currentTurn: (row["current_turn"] as State["currentTurn"]) ?? null,
+            called: (row["called_numbers"] as number[]) ?? prev.called,
+            winner: (row["winner"] as State["winner"]) ?? null,
+            turnDeadline: (row["turn_deadline"] as string | null) ?? null,
+            setupDeadline: (row["setup_deadline"] as string | null) ?? null,
+            rematchCode: (row["rematch_code"] as string | null) ?? null,
+            oppReady: !!ready || prev.oppReady,
+          };
+        });
+        if (needsRefresh) refresh();
       })
       .subscribe();
+    channelRef.current = channel;
     return () => {
+      channelRef.current = null;
       supabase.removeChannel(channel);
     };
   }, [code, refresh]);
