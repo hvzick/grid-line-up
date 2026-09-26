@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Online match writes go through server functions using the admin client; player grids live in private match_players table. Why: anonymous players must not see or tamper with opponent grids.
