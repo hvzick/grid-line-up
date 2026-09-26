@@ -166,6 +166,35 @@ function OnlinePage() {
 
   const calledSet = useMemo(() => new Set(state?.called ?? []), [state?.called]);
 
+  const play = useCallback(
+    (n: number) => {
+      const snapshot = state;
+      if (!snapshot || snapshot.status !== "playing" || snapshot.currentTurn !== snapshot.mySlot) return;
+      if (snapshot.called.includes(n)) return;
+      // 1. paint instantly
+      setState({
+        ...snapshot,
+        called: [...snapshot.called, n],
+        currentTurn: snapshot.mySlot === "p1" ? "p2" : "p1",
+        turnDeadline: new Date(Date.now() + 15_000).toISOString(),
+      });
+      // 2. tell the opponent over the open socket
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "number_called",
+        payload: { n, slot: snapshot.mySlot },
+      });
+      // 3. confirm with the server, rolling back if it was rejected
+      callFn({ data: { token: token.current, code, n } })
+        .then((r) => {
+          if (r.state) setState(r.state);
+          else setState(snapshot);
+        })
+        .catch(() => setState(snapshot));
+    },
+    [state, callFn, code],
+  );
+
   if (error)
     return (
       <Shell>
