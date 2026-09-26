@@ -49,9 +49,14 @@ export const submitGrid = createServerFn({ method: "POST" })
 export const callNumber = createServerFn({ method: "POST" })
   .inputValidator((d) => withCode.extend({ n: z.number().int().min(1).max(25) }).parse(d))
   .handler(async ({ data }) => {
-    const { match, players, slot } = await S.requireSlot(data.code, data.token);
-    await S.doCall(match, players, slot, data.n);
-    return { ok: true };
+    try {
+      const { match, players, slot } = await S.requireSlot(data.code, data.token);
+      const ok = await S.doCall(match, players, slot, data.n);
+      const r = await S.requireSlot(data.code, data.token);
+      return { ok, state: S.buildState(r.match, r.players, slot), error: null };
+    } catch (e) {
+      return { ok: false, state: null, error: (e as Error).message };
+    }
   });
 
 export const requestRematch = createServerFn({ method: "POST" })

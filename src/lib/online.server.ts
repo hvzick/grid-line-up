@@ -101,9 +101,9 @@ export async function submitGrid(match: Match, players: Player[], slot: Slot, gr
 }
 
 export async function doCall(match: Match, players: Player[], slot: Slot, n: number) {
-  if (match.status !== "playing" || match.current_turn !== slot) return;
+  if (match.status !== "playing" || match.current_turn !== slot) return false;
   const called = new Set(match.called_numbers);
-  if (called.has(n) || n < 1 || n > 25) return;
+  if (called.has(n) || n < 1 || n > 25) return false;
   called.add(n);
   const g1 = players.find((p) => p.slot === "p1")!.grid!;
   const g2 = players.find((p) => p.slot === "p2")!.grid!;
@@ -111,10 +111,14 @@ export async function doCall(match: Match, players: Player[], slot: Slot, n: num
   const w2 = completedLines(g2, called).length >= 5;
   const called_numbers = [...match.called_numbers, n];
   if (w1 || w2) {
-    await update(match, { called_numbers, status: "finished", winner: w1 && w2 ? slot : w1 ? "p1" : "p2", turn_deadline: null });
-    return;
+    return await update(match, {
+      called_numbers,
+      status: "finished",
+      winner: w1 && w2 ? slot : w1 ? "p1" : "p2",
+      turn_deadline: null,
+    });
   }
-  await update(match, {
+  return await update(match, {
     called_numbers,
     current_turn: slot === "p1" ? "p2" : "p1",
     turn_deadline: new Date(Date.now() + TURN_MS).toISOString(),

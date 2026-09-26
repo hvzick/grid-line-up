@@ -58,6 +58,7 @@ function OnlinePage() {
   const [copied, setCopied] = useState(false);
   const now = useNow();
   const token = useRef("");
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const draftRef = useRef(draft);
   draftRef.current = draft;
 
@@ -82,12 +83,55 @@ function OnlinePage() {
     setDraft(emptyGrid());
     refresh();
     const channel = supabase
-      .channel(`match-${code}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "matches", filter: `room_code=eq.${code}` }, () => {
-        refresh();
+      .channel(`match-${code}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "number_called" }, ({ payload }) => {
+        const n = Number((payload as { n?: number })?.n);
+        const from = (payload as { slot?: string })?.slot;
+        if (!Number.isInteger(n)) return;
+        setState((prev) => {
+          if (!prev || prev.status !== "playing" || prev.called.includes(n)) return prev;
+          return {
+            ...prev,
+            called: [...prev.called, n],
+            currentTurn: from === "p1" ? "p2" : "p1",
+            turnDeadline: new Date(Date.now() + 15_000).toISOString(),
+          };
+        });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "matches", filter: `room_code=eq.${code}` }, (payload) => {
+        const row = payload.new as Record<string, unknown> | null;
+        if (!row || !row["status"]) {
+          refresh();
+          return;
+        }
+        let needsRefresh = false;
+        setState((prev) => {
+          if (!prev) {
+            needsRefresh = true;
+            return prev;
+          }
+          const status = row["status"] as State["status"];
+          const ready = prev.mySlot === "p1" ? row["p2_ready"] : row["p1_ready"];
+          // grids / slots live in another table: only fetch when the phase changes
+          if (status !== prev.status) needsRefresh = true;
+          return {
+            ...prev,
+            status,
+            currentTurn: (row["current_turn"] as State["currentTurn"]) ?? null,
+            called: (row["called_numbers"] as number[]) ?? prev.called,
+            winner: (row["winner"] as State["winner"]) ?? null,
+            turnDeadline: (row["turn_deadline"] as string | null) ?? null,
+            setupDeadline: (row["setup_deadline"] as string | null) ?? null,
+            rematchCode: (row["rematch_code"] as string | null) ?? null,
+            oppReady: !!ready || prev.oppReady,
+          };
+        });
+        if (needsRefresh) refresh();
       })
       .subscribe();
+    channelRef.current = channel;
     return () => {
+      channelRef.current = null;
       supabase.removeChannel(channel);
     };
   }, [code, refresh]);
@@ -121,6 +165,35 @@ function OnlinePage() {
   }, [now, state, refresh]);
 
   const calledSet = useMemo(() => new Set(state?.called ?? []), [state?.called]);
+
+  const play = useCallback(
+    (n: number) => {
+      const snapshot = state;
+      if (!snapshot || snapshot.status !== "playing" || snapshot.currentTurn !== snapshot.mySlot) return;
+      if (snapshot.called.includes(n)) return;
+      // 1. paint instantly
+      setState({
+        ...snapshot,
+        called: [...snapshot.called, n],
+        currentTurn: snapshot.mySlot === "p1" ? "p2" : "p1",
+        turnDeadline: new Date(Date.now() + 15_000).toISOString(),
+      });
+      // 2. tell the opponent over the open socket
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "number_called",
+        payload: { n, slot: snapshot.mySlot },
+      });
+      // 3. confirm with the server, rolling back if it was rejected
+      callFn({ data: { token: token.current, code, n } })
+        .then((r) => {
+          if (r.state) setState(r.state);
+          else setState(snapshot);
+        })
+        .catch(() => setState(snapshot));
+    },
+    [state, callFn, code],
+  );
 
   if (error)
     return (
@@ -295,7 +368,7 @@ function OnlinePage() {
             grid={myGrid}
             called={calledSet}
             lines={myLines}
-            onCell={(i) => myTurn && callFn({ data: { token: token.current, code, n: myGrid[i]! } })}
+            onCell={(i) => myTurn && play(myGrid[i]!)}
             interactive={myTurn}
           />
         </div>
