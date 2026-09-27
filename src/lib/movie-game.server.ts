@@ -100,8 +100,10 @@ export async function chooseMovieRole(code: string, token: string, choice: "gues
 export async function setMovieAnswer(code: string, token: string, category: MovieCategory, title: string) {
   const { room, slot } = await requirePlayer(code, token);
   if (room.status !== "choosing" || room.setter_slot !== slot) throw new Error("Only the movie setter can choose the answer");
-  const canonicalTitle = MOVIES[category].find((movie) => movie === title);
-  if (!canonicalTitle) throw new Error("Choose a movie from the list");
+  const canonicalTitle = title.trim().replace(/\s+/g, " ");
+  if (canonicalTitle.length < 2 || canonicalTitle.length > 60 || !/[a-z]/i.test(canonicalTitle) || !/^[a-z0-9 '&:.,!?-]+$/i.test(canonicalTitle)) {
+    throw new Error("Enter a movie name using English letters, numbers and spaces");
+  }
   const { error } = await supabaseAdmin.from("movie_rooms").update({
     category,
     movie_title: canonicalTitle,

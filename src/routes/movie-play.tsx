@@ -193,16 +193,18 @@ function CategoryButtons({ onSelect, selected }: { onSelect: (category: MovieCat
 
 function MoviePicker({ busy, onSubmit }: { busy: boolean; onSubmit: (category: MovieCategory, title: string) => Promise<void> }) {
   const [category, setCategory] = useState<MovieCategory>("hollywood");
-  const [title, setTitle] = useState(MOVIES.hollywood[0]!);
+  const [title, setTitle] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const selectCategory = (next: MovieCategory) => { setCategory(next); setTitle(MOVIES[next][0]!); };
+  const clean = title.trim().replace(/\s+/g, " ");
+  const valid = clean.length >= 2 && clean.length <= 60 && /[a-z]/i.test(clean) && /^[a-z0-9 '&:.,!?-]+$/i.test(clean);
   return <div className="mx-auto mt-5 max-w-xl">
-    <CategoryButtons selected={category} onSelect={selectCategory} />
-    <label className="mt-5 block text-sm font-semibold text-muted-foreground">Choose the secret title
-      <select value={title} onChange={(event) => setTitle(event.target.value)} className="mt-2 w-full rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground">{MOVIES[category].map((movie) => <option key={movie}>{movie}</option>)}</select>
+    <CategoryButtons selected={category} onSelect={setCategory} />
+    <label className="mt-5 block text-sm font-semibold text-muted-foreground">Type the secret movie name
+      <input type="password" autoComplete="off" value={title} maxLength={60} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. The Dark Knight" className="mt-2 w-full rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground" />
     </label>
-    <Btn className="mt-4 w-full" disabled={saving || busy} onClick={async () => { setSaving(true); setError(null); try { await onSubmit(category, title); } catch (reason) { setError((reason as Error).message); } finally { setSaving(false); } }}>{saving ? "Starting…" : "Ready to play"}</Btn>
+    <p className="mt-1 text-xs text-muted-foreground">English letters, numbers and spaces only. Hidden so your opponent can't peek.</p>
+    <Btn className="mt-4 w-full" disabled={saving || busy || !valid} onClick={async () => { setSaving(true); setError(null); try { await onSubmit(category, clean); } catch (reason) { setError((reason as Error).message); } finally { setSaving(false); } }}>{saving ? "Starting…" : "Ready to play"}</Btn>
     {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
   </div>;
 }
