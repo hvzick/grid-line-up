@@ -204,6 +204,13 @@ function MoviePicker({ busy, onSubmit }: { busy: boolean; onSubmit: (category: M
       <input type="password" autoComplete="off" value={title} maxLength={60} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. The Dark Knight" className="mt-2 w-full rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground" />
     </label>
     <p className="mt-1 text-xs text-muted-foreground">English letters, numbers and spaces only. Hidden so your opponent can't peek.</p>
+    {clean.length > 0 && <div className="mt-4 rounded-xl border border-border bg-background/60 p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">What your friend sees first</p>
+      <div className="mt-2 flex min-h-14 flex-wrap items-center justify-center gap-x-2 gap-y-2" aria-label="Initial reveal preview">
+        {[...initialMovieHints(clean)].map((char, index) => <span key={`${index}-${char}`} className={cn("px-0.5 text-center font-display text-2xl tracking-wide sm:text-3xl", char === " " ? "w-2 sm:w-4" : "min-w-[0.65em] border-b-2 border-border")}>{char === " " ? "" : char || "_"}</span>)}
+      </div>
+      <p className="mt-2 text-center text-xs text-muted-foreground">Vowels are shown from the start — your friend guesses the consonants.</p>
+    </div>}
     <Btn className="mt-4 w-full" disabled={saving || busy || !valid} onClick={async () => { setSaving(true); setError(null); try { await onSubmit(category, clean); } catch (reason) { setError((reason as Error).message); } finally { setSaving(false); } }}>{saving ? "Starting…" : "Ready to play"}</Btn>
     {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
   </div>;
