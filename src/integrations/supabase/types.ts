@@ -14,54 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      movie_rooms: {
-        Row: {
-          category: string | null
-          created_at: string
-          guessed_letters: string[]
-          guesser_slot: string | null
-          id: string
-          movie_title: string | null
-          room_code: string
-          setter_slot: string | null
-          status: string
-          winner: string | null
-          wrong_guesses: number
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string
-          guessed_letters?: string[]
-          guesser_slot?: string | null
-          id?: string
-          movie_title?: string | null
-          room_code: string
-          setter_slot?: string | null
-          status?: string
-          winner?: string | null
-          wrong_guesses?: number
-        }
-        Update: {
-          category?: string | null
-          created_at?: string
-          guessed_letters?: string[]
-          guesser_slot?: string | null
-          id?: string
-          movie_title?: string | null
-          room_code?: string
-          setter_slot?: string | null
-          status?: string
-          winner?: string | null
-          wrong_guesses?: number
-        }
-        Relationships: []
-      }
-      movie_room_players: {
-        Row: { choice: string | null; player_token: string; room_id: string; slot: string }
-        Insert: { choice?: string | null; player_token: string; room_id: string; slot: string }
-        Update: { choice?: string | null; player_token?: string; room_id?: string; slot?: string }
-        Relationships: []
-      }
       match_players: {
         Row: {
           grid: number[] | null
