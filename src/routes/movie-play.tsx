@@ -110,6 +110,14 @@ function MoviePlay() {
   const categoryWord = category ?? state?.category ?? "hollywood";
   const movieDisplay = useMemo(() => {
     if (mode === "pvp" && state?.role === "guesser") return state.maskedTitle ?? "";
+    if (mode === "pvp" && state?.role === "setter" && state.title) {
+      const hints = initialMovieHints(state.title);
+      return [...state.title].map((char, index) => {
+        if (char === " ") return " ";
+        if (hints[index]) return hints[index];
+        return state.guessedLetters.includes(char.toUpperCase()) ? char : "_";
+      }).join("");
+    }
     if (mode === "pvp") return state?.title ?? "";
     return aiTitle ? initialMovieHints(aiTitle).map((char, index) => char || (aiGuesses.some((letter) => aiTitle[index]?.toUpperCase() === letter) ? aiTitle[index] : "_" )).join("") : "";
   }, [mode, state?.role, state?.maskedTitle, state?.title, aiTitle, aiGuesses]);
