@@ -11,7 +11,7 @@ function newCode() {
 async function loadRoom(code: string) {
   const { data, error } = await supabaseAdmin.from("movie_rooms").select("*").eq("room_code", code.toUpperCase()).maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("Movie room not found");
+  if (!data) throw new Error("This room doesn't exist");
   return data;
 }
 
@@ -132,4 +132,13 @@ export async function guessMovieLetter(code: string, token: string, rawLetter: s
   }).eq("id", room.id).eq("status", "playing");
   if (error) throw new Error(error.message);
   return getMovieRoom(code, token);
+}
+
+export async function closeMovieRoom(code: string, token: string) {
+  const { data: room } = await supabaseAdmin.from("movie_rooms").select("id").eq("room_code", code.toUpperCase()).maybeSingle();
+  if (!room) return;
+  const players = await loadPlayers(room.id);
+  if (!players.some((player) => player.player_token === token)) return;
+  await supabaseAdmin.from("movie_room_players").delete().eq("room_id", room.id);
+  await supabaseAdmin.from("movie_rooms").delete().eq("id", room.id);
 }
