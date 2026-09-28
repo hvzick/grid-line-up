@@ -188,7 +188,7 @@ function MoviePlay() {
             <div className="flex min-h-24 flex-wrap items-center justify-center gap-x-2 gap-y-3 py-2 sm:gap-x-3" aria-label="Movie title">
               {[...movieDisplay].map((char, index) => <span key={`${index}-${char}`} className={cn("px-0.5 text-center font-display text-3xl tracking-wide sm:text-5xl", char === " " ? "w-3 sm:w-6" : "min-w-[0.65em] border-b-2 border-border")}>{char === " " ? "" : char}</span>)}
             </div>
-            {mode === "pvp" && state?.role === "setter" && <p className="mt-1 text-center text-sm text-muted-foreground">Your opponent has {wrong} wrong {wrong === 1 ? "guess" : "guesses"}.</p>}
+            {mode === "pvp" && state?.role === "setter" && <p className="mt-1 text-center text-sm text-muted-foreground">Your movie: <span className="font-semibold text-foreground">{state.title}</span> · Your opponent has {wrong} wrong {wrong === 1 ? "guess" : "guesses"}.</p>}
             <WrongLetters category={categoryWord} wrong={wrong} />
             {finished && <div className="mt-5 border-t border-border pt-5 text-center"><h2 className={cn("font-display text-4xl tracking-wide", hasWon ? "text-accent" : "text-primary")}>{hasWon ? "YOU GOT IT!" : "ROUND OVER"}</h2><p className="mt-2 text-muted-foreground">{activeTitle ? <>The movie was <span className="font-semibold text-foreground">{activeTitle}</span></> : "The answer is revealed."}</p>{mode === "ai" && <Btn className="mt-4" onClick={() => { setCategory(null); setAiTitle(null); setAiGuesses([]); setAiWrong(0); }}><RotateCcw className="mr-2 h-4 w-4" /> Play again</Btn>}</div>}
           </Panel>
