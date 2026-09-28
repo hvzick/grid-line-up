@@ -55,7 +55,21 @@ export async function joinPrivate(code: string, token: string) {
     .from("matches")
     .update({ status: "setup", setup_deadline: new Date(Date.now() + SETUP_MS).toISOString(), version: match.version + 1 })
     .eq("id", match.id);
+  await broadcastMatch(match.room_code);
   return match.room_code;
+}
+
+// The matches table is not publicly readable, so the server pushes
+// row updates to both players over the realtime socket itself.
+export async function broadcastMatch(code: string) {
+  try {
+    const fresh = await loadMatch(code);
+    await supabaseAdmin
+      .channel(`match-${fresh.room_code}`)
+      .send({ type: "broadcast", event: "match_update", payload: fresh });
+  } catch {
+    // best effort; clients also re-fetch on deadline ticks
+  }
 }
 
 type Match = Awaited<ReturnType<typeof loadMatch>>;
