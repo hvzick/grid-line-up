@@ -104,8 +104,8 @@ function OnlinePage() {
           };
         });
       })
-      .on("postgres_changes", { event: "*", schema: "public", table: "matches", filter: `room_code=eq.${code}` }, (payload) => {
-        const row = payload.new as Record<string, unknown> | null;
+      .on("broadcast", { event: "match_update" }, ({ payload }) => {
+        const row = payload as Record<string, unknown> | null;
         if (!row || !row["status"]) {
           refresh();
           return;
