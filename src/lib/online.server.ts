@@ -209,5 +209,6 @@ export async function cancel(match: Match, slot: Slot) {
 export async function quick(token: string) {
   const { data, error } = await supabaseAdmin.rpc("find_or_create_match", { _token: token, _code: genCode() });
   if (error) throw new Error(error.message);
+  await broadcastMatch(data as string);
   return data as string;
 }
