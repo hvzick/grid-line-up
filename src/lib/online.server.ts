@@ -84,8 +84,6 @@ async function update(match: Match, patch: Partial<Match>) {
     .select();
   const row = data?.[0];
   if (!row) return false;
-  // The matches table is not publicly readable, so the server pushes
-  // row updates to both players over the realtime socket itself.
   supabaseAdmin
     .channel(`match-${match.room_code}`)
     .send({ type: "broadcast", event: "match_update", payload: row })
