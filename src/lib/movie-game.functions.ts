@@ -40,3 +40,7 @@ export const setMovieAnswer = createServerFn({ method: "POST" })
 export const guessMovieLetter = createServerFn({ method: "POST" })
   .validator((data) => roomData.extend({ letter: z.string().length(1) }).parse(data))
   .handler(async ({ data }) => ({ state: await S.guessMovieLetter(data.code, data.token, data.letter) }));
+
+export const closeMovieRoom = createServerFn({ method: "POST" })
+  .validator((data) => roomData.parse(data))
+  .handler(async ({ data }) => { await S.closeMovieRoom(data.code, data.token); return { ok: true }; });

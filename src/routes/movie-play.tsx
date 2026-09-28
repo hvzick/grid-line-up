@@ -3,7 +3,7 @@ import { ArrowLeft, Check, Copy, Film, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { Btn } from "@/components/bingo-ui";
-import { chooseMovieRole, getMovieRoom, guessMovieLetter, setMovieAnswer } from "@/lib/movie-game.functions";
+import { chooseMovieRole, closeMovieRoom, getMovieRoom, guessMovieLetter, setMovieAnswer } from "@/lib/movie-game.functions";
 import { initialMovieHints, MOVIES, normalizeMovie, type MovieCategory } from "@/lib/movie-game";
 import { getPlayerToken } from "@/lib/player-token";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,7 @@ function MoviePlay() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const token = useRef("");
+  const [gone, setGone] = useState(false);
   const getFn = useCallback(getMovieRoom, []);
 
   const refresh = useCallback(async () => {
@@ -49,17 +50,32 @@ function MoviePlay() {
     try {
       const result = await getFn({ data: { code: room, token: token.current } });
       if (result.state) { setState(result.state as MovieState); setError(null); }
-      else setError(result.error ?? "Could not load movie room");
+      else {
+        const message = result.error ?? "Could not load movie room";
+        if (/doesn't exist|not in this movie room/i.test(message)) { setGone(true); setState(null); setError(null); }
+        else setError(message);
+      }
     } catch (reason) { setError((reason as Error).message); }
   }, [room, getFn]);
 
   useEffect(() => {
     if (mode !== "pvp" || !room) return;
     token.current = getPlayerToken();
+    if (pendingClose) { window.clearTimeout(pendingClose); pendingClose = null; }
     void refresh();
     const timer = window.setInterval(() => void refresh(), 1200);
-    return () => window.clearInterval(timer);
+    const code = room;
+    const close = () => { void closeMovieRoom({ data: { code, token: token.current } }).catch(() => {}); };
+    window.addEventListener("pagehide", close);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("pagehide", close);
+      // Delay so a quick dev remount doesn't close the room by mistake.
+      pendingClose = window.setTimeout(() => { pendingClose = null; close(); }, 400);
+    };
   }, [mode, room, refresh]);
+
+  useEffect(() => { if (gone) setError(null); }, [gone]);
 
   const startAI = (nextCategory: MovieCategory) => {
     const choices = MOVIES[nextCategory];
@@ -99,6 +115,8 @@ function MoviePlay() {
   }, [mode, state?.role, state?.maskedTitle, state?.title, aiTitle, aiGuesses]);
 
   if (mode === "pvp" && !room) return <PageShell><Panel><p className="text-center text-muted-foreground">Create or join a private room from the Guess the Movie page.</p><Link to="/movie" className="mx-auto mt-4 block w-fit text-accent underline">Back to Guess the Movie</Link></Panel></PageShell>;
+
+  if (mode === "pvp" && gone) return <PageShell><Panel className="text-center"><h1 className="font-display text-4xl tracking-wide">ROOM DOESN'T EXIST</h1><p className="mt-2 text-muted-foreground">This room was closed or never existed.</p><Link to="/movie" className="mx-auto mt-4 block w-fit text-accent underline">Back to Guess the Movie</Link></Panel></PageShell>;
 
   const copyInvite = async () => {
     if (!state) return;
@@ -175,6 +193,8 @@ function MoviePlay() {
     </PageShell>
   );
 }
+
+let pendingClose: number | null = null;
 
 async function chooseRole(code: string, choice: "guess" | "set") {
   const result = await chooseMovieRole({ data: { code, token: getPlayerToken(), choice } });
