@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/movie-play")({
   validateSearch: z.object({ mode: z.enum(["ai", "pvp"]).catch("ai"), room: z.string().optional() }),
-  head: () => ({ meta: [{ title: "Guess the Movie — Grid Glory" }] }),
+  head: () => ({ meta: [{ title: "Play Guess the Movie — Grid Glory" }, { name: "description", content: "Guess the hidden Hollywood or Bollywood movie title letter by letter, vs AI or a friend." }, { property: "og:title", content: "Play Guess the Movie — Grid Glory" }, { property: "og:description", content: "Guess the hidden Hollywood or Bollywood movie title letter by letter." }] }),
   component: MoviePlay,
 });
 

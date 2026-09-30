@@ -134,6 +134,7 @@ function PlayPage() {
           : "max-w-5xl py-8",
       )}
     >
+      <h1 className="sr-only">Play Bingo Duel vs Bot</h1>
       <header className="relative flex items-center justify-center">
         <Link
           to="/bingo"
