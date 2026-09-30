@@ -416,6 +416,7 @@ function OnlinePage() {
 function Shell({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
+      <h1 className="sr-only">Online Bingo Duel Match</h1>
       <header className="flex items-center justify-between">
         <Link to="/" className="font-display text-3xl tracking-wide text-primary">
           BINGO DUEL
