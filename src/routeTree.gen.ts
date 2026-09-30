@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BingoRouteImport } from './routes/bingo'
 import { Route as MovieRouteImport } from './routes/movie'
 import { Route as MoviePlayRouteImport } from './routes/movie-play'
+import { Route as NumberBingoRulesRouteImport } from './routes/number-bingo-rules'
 import { Route as OnlineRouteImport } from './routes/online'
 import { Route as PlayRouteImport } from './routes/play'
 
@@ -36,6 +37,11 @@ const MoviePlayRoute = MoviePlayRouteImport.update({
   path: '/movie-play',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NumberBingoRulesRoute = NumberBingoRulesRouteImport.update({
+  id: '/number-bingo-rules',
+  path: '/number-bingo-rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnlineRoute = OnlineRouteImport.update({
   id: '/online',
   path: '/online',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/bingo': typeof BingoRoute
   '/movie': typeof MovieRoute
   '/movie-play': typeof MoviePlayRoute
+  '/number-bingo-rules': typeof NumberBingoRulesRoute
   '/online': typeof OnlineRoute
   '/play': typeof PlayRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/bingo': typeof BingoRoute
   '/movie': typeof MovieRoute
   '/movie-play': typeof MoviePlayRoute
+  '/number-bingo-rules': typeof NumberBingoRulesRoute
   '/online': typeof OnlineRoute
   '/play': typeof PlayRoute
 }
@@ -69,16 +77,38 @@ export interface FileRoutesById {
   '/bingo': typeof BingoRoute
   '/movie': typeof MovieRoute
   '/movie-play': typeof MoviePlayRoute
+  '/number-bingo-rules': typeof NumberBingoRulesRoute
   '/online': typeof OnlineRoute
   '/play': typeof PlayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/bingo' | '/movie' | '/movie-play' | '/online' | '/play'
+  fullPaths:
+    | '/'
+    | '/bingo'
+    | '/movie'
+    | '/movie-play'
+    | '/number-bingo-rules'
+    | '/online'
+    | '/play'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/bingo' | '/movie' | '/movie-play' | '/online' | '/play'
+  to:
+    | '/'
+    | '/bingo'
+    | '/movie'
+    | '/movie-play'
+    | '/number-bingo-rules'
+    | '/online'
+    | '/play'
   id:
-    '__root__' | '/' | '/bingo' | '/movie' | '/movie-play' | '/online' | '/play'
+    | '__root__'
+    | '/'
+    | '/bingo'
+    | '/movie'
+    | '/movie-play'
+    | '/number-bingo-rules'
+    | '/online'
+    | '/play'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +116,7 @@ export interface RootRouteChildren {
   BingoRoute: typeof BingoRoute
   MovieRoute: typeof MovieRoute
   MoviePlayRoute: typeof MoviePlayRoute
+  NumberBingoRulesRoute: typeof NumberBingoRulesRoute
   OnlineRoute: typeof OnlineRoute
   PlayRoute: typeof PlayRoute
 }
@@ -120,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MoviePlayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/number-bingo-rules': {
+      id: '/number-bingo-rules'
+      path: '/number-bingo-rules'
+      fullPath: '/number-bingo-rules'
+      preLoaderRoute: typeof NumberBingoRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/online': {
       id: '/online'
       path: '/online'
@@ -142,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   BingoRoute: BingoRoute,
   MovieRoute: MovieRoute,
   MoviePlayRoute: MoviePlayRoute,
+  NumberBingoRulesRoute: NumberBingoRulesRoute,
   OnlineRoute: OnlineRoute,
   PlayRoute: PlayRoute,
 }
