@@ -93,7 +93,10 @@ function Index() {
         </section>
 
         <footer className="relative mt-4 text-center text-xs text-muted-foreground/70">
-          More games, more rivalries.
+          More games, more rivalries.{" "}
+          <Link to="/number-bingo-rules" className="font-semibold text-primary underline underline-offset-2">
+            Number bingo rules
+          </Link>
         </footer>
       </div>
     </main>
