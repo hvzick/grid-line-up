@@ -53,6 +53,9 @@ function BingoInfo() {
             <li className="flex gap-3"><Step n="2" /> <span>Take turns calling a number (15 seconds each, or one is picked for you). It’s crossed on both grids.</span></li>
             <li className="flex gap-3"><Step n="3" /> <span>Complete rows, columns or diagonals. First to 5 lines — B·I·N·G·O — wins.</span></li>
           </ol>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Want the full rulebook? Read our <Link to="/number-bingo-rules" className="font-semibold text-primary underline underline-offset-2">number bingo rules and strategy guide</Link>.
+          </p>
         </section>
       </div>
     </main>
